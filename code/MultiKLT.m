@@ -4,44 +4,53 @@ classdef MultiKLT < handle
 
     properties
         % Video path
+		%	string
         path_;
 
-        % Integer number of track object
+        % Number of track object
+		%	int
         object_;
 
         % Actual length in real world for determing the scalefactor
-        %   Integer
+        %   int or double
         dist_mm_;
         
         % ScaleFactor
-        %   Integer
+        %   double
         ScaleFactor_;
 
         % Instrinsic
+		%	3-by-3 matrix
         K_;
 
-        % Bboxes M-by-4 matrix of [x y w h] object bounding boxes
+        % Object bounding boxes [x y w h]
+		%	M-by-4 matrix
         Bboxes_ = [];
 
-        % Bboxes points M-by-4 matrix of [pt1 pt2 pt3 pt4] object bounding boxes
+        % 4 corner points of  bounding boxes [pt1 pt2 pt3 pt4] 
+		%	M-by-4 matrix
         BboxesPoints_ = [];
 
-        % BoxIds M-by-1 array containing ids associated with each bounding box
+        % BoxIds containing IDs associated with each bounding box
+		%	M-by-1 array
         BoxIds_ = [];
 
-        % Points M-by-2 matrix containing tracked points from all objects
+        % Points containing tracked points from all objects
+		%	M-by-2 matrix
         Points_ = [];
 
-        % Points M-by-2 matrix containing previous tracked points from all objects
+        % Points containing previous tracked points from all objects
+		%	M-by-2 matrix
         oldPoints_ = [];
 
-        % PointIds M-by-1 array containing object id associated with each
-        %   point. This array keeps track of which point belongs to which object.
+        % PointIds containing object id associated with each point. 
+		% This array keeps track of which point belongs to which object.
+		%	M-by-1 array
         PointIds_ = [];
 
-        % oldPointIds_ 
-        % M-by-1 array containing previous object id associated with each
-        %   point. This array keeps track of which point belongs to which bbox.
+        % oldPointIds_ containing previous object id associated with each point. 
+		% This array keeps track of which point belongs to which bbox.
+		%	M-by-1 array
         oldPointIds_ = [];
 
         % PointSepIdx_ saving the points seperate index.
@@ -52,15 +61,15 @@ classdef MultiKLT < handle
         tracker_;
         
         % Displacment of bounding boxes (without scale factor)
-        %   frames*n_object*2 array
+        %   frames-n_object-2 array
         bbox2d_ = [];
 
         % Displacment of bounding boxes (with scale factor)
-        %   frames*n_object*2 array
+        %   frames-n_object-2 array
         disp2d_ = [];
 
         % Time 
-        % frames*1 array
+        % frames-1 array
         times_=  [];
     end
 
@@ -78,8 +87,7 @@ classdef MultiKLT < handle
         end
 
         function drawROI(this, first_frame, n_object)
-            %drawROI Summary of this method goes here
-            %   drawROI
+            %drawROI 
 
             fprintf("====== Please draw %d ROI ======\n", n_object)
 
@@ -99,7 +107,6 @@ classdef MultiKLT < handle
                 this.PointIds_ = [this.PointIds_; idx];
                 this.Bboxes_ = [this.Bboxes_; r.Position];
                 this.BboxesPoints_ = [this.BboxesPoints_; bbox2points(r.Position)];
-
                 % show roi and features
                 marker_img = insertShape(marker_img, 'Rectangle' ...
                     , r.Position, 'LineWidth',2);
@@ -134,15 +141,15 @@ classdef MultiKLT < handle
             begin = 1;
             last = this.PointSepIdx_(1);
             for i = 1:size(this.Bboxes_,1)
-
+			
                 % Estimate the geometric transformation between the old points
                 % and the new points and eliminate outliers
                 oldPoints = this.oldPoints_(begin:last, :);
                 Points = this.Points_(begin:last, :);
                 PointsIds = this.PointIds_(begin:last, :);
-
                 [xform, inlierIdx] = estgeotform2d(oldPoints, Points, 'similarity');
-                % The rest points after estgeotform2d
+				
+                % The inlier points after estgeotform2d
                 afterGeotrom2dPts = Points(inlierIdx, :);
                 afterGeotrom2dPtsIds = PointsIds(inlierIdx, :);
                 this.PointSepIdx_(i) = size(afterGeotrom2dPts,1);
@@ -156,6 +163,7 @@ classdef MultiKLT < handle
                     begin = last+1;
                     last = this.PointSepIdx_(i+1);
                 end
+				
                 % save estgeotform2d points and its index
                 newpoints = [newpoints; afterGeotrom2dPts];
                 newpointsIds = [newpointsIds; afterGeotrom2dPtsIds];
@@ -241,7 +249,7 @@ classdef MultiKLT < handle
                 saveResult(:,2:3) = squeeze(this.disp2d_(:,i,:));
                 saveResult = array2table(saveResult, 'VariableNames' ...
                     , {'time', 'u_displacement(mm)', 'v_displacement(mm)'});
-                writetable(saveResult,['point_' num2str(i) '_klt.csv'])
+                writetable(saveResult,['point' num2str(i) '_klt.csv'])
             end
         end
     end

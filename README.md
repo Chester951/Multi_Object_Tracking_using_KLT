@@ -13,7 +13,15 @@
 * Number of tracking object
 * Length of target in SI unit
 
-![image](https://github.com/HelloChengEn/Multi-Object-Tracking-using-KLT/blob/main/figures/test.png)
+### Program Usage
+
+1. Draw target line to determine the scale factor
+
+![image](https://github.com/HelloChengEn/Multi-Object-Tracking-using-KLT/blob/main/figures/drawLine.png)
+
+2. Draw tracking object 
+
+![image](https://github.com/HelloChengEn/Multi-Object-Tracking-using-KLT/blob/main/figures/object%20tracking.png)
 
 ### Program Output
 

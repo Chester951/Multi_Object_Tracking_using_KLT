@@ -1,4 +1,4 @@
-# Multi-Object-Tracking-using-KLT
+# Multi Object Tracking using KLT
 
 ## Build environment
 
